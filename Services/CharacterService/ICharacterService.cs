@@ -7,8 +7,9 @@ namespace dotnet7_webapi_mvc.Services.CharacterService
 {
     public interface ICharacterService
     {
-        List<Character> Get();
-        Character GetSingle(int id);
-        List<Character> Create(Character newCharacter);
+        Task<ServiceResponse<List<GetCharacterDTO>>> Get();
+        Task<ServiceResponse<GetCharacterDTO>> GetSingle(int id);
+        Task<ServiceResponse<List<GetCharacterDTO>>> Create(CreateCharacterDTO newCharacter);
+        Task<ServiceResponse<GetCharacterDTO>> Update(UpdateCharacterDTO updateCharacter);
     }
 }

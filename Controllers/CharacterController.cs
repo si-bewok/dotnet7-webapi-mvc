@@ -18,23 +18,31 @@ namespace dotnet7_webapi_mvc.Controllers
         }
 
         [HttpGet]
-        public ActionResult<List<Character>> Get()
+        public async Task<ActionResult<ServiceResponse<List<GetCharacterDTO>>>> Get()
         {
-            return Ok(_characterService.Get());
+            return Ok(await _characterService.Get());
         }
 
         [HttpGet("{id}")]
-        public ActionResult<Character> GetSingle(int id)
+        public async Task<ActionResult<ServiceResponse<GetCharacterDTO>>> GetSingle(int id)
         {
-            var character = _characterService.GetSingle(id);
-            if (character == null) return NotFound("No character found.");
-            return Ok(character);       
+            var response = await _characterService.GetSingle(id);
+            if (response.Data == null) return NotFound(response);
+            return Ok(response);       
         }
 
         [HttpPost]
-        public ActionResult<List<Character>> Create(Character newCharacter)
+        public async Task<ActionResult<ServiceResponse<List<GetCharacterDTO>>>> Create(CreateCharacterDTO newCharacter)
         {
-            return Ok(_characterService.Create(newCharacter));
+            return Ok(await _characterService.Create(newCharacter));
+        }
+
+        [HttpPut]
+        public async Task<ActionResult<ServiceResponse<GetCharacterDTO>>> Update(UpdateCharacterDTO updateCharacter)
+        {
+            var response = await _characterService.Update(updateCharacter);
+            if (response.Data == null) return NotFound(response);
+            return Ok(response);
         }
     }
 }

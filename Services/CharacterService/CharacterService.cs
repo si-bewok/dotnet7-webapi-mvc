@@ -11,21 +11,76 @@ namespace dotnet7_webapi_mvc.Services.CharacterService
             new Character(),
             new Character { Id = 1, Name = "Sam" }
         };
+        private readonly IMapper _mapper;
 
-        public List<Character> Get()
+        public CharacterService(IMapper mapper)
         {
-            return characters;
+            _mapper = mapper;
         }
 
-        public Character GetSingle(int id)
+        public async Task<ServiceResponse<List<GetCharacterDTO>>> Get()
         {
-            return characters.FirstOrDefault(c => c.Id == id);
+            var serviceResponse = new ServiceResponse<List<GetCharacterDTO>>
+            {
+                Data = characters.Select(c => _mapper.Map<GetCharacterDTO>(c)).ToList()
+            };
+
+            return serviceResponse;
         }
 
-        public List<Character> Create(Character newCharacter)
+        public async Task<ServiceResponse<GetCharacterDTO>> GetSingle(int id)
         {
-            characters.Add(newCharacter);
-            return characters;
+            var serviceResponse = new ServiceResponse<GetCharacterDTO>();
+            try
+            {
+                var character = characters.FirstOrDefault(c => c.Id == id);
+                if (character == null) throw new Exception($"Character with Id '{id}' not found.");
+                serviceResponse.Data = _mapper.Map<GetCharacterDTO>(character);
+            }
+            catch (Exception ex)
+            {
+                serviceResponse.Success = false;
+                serviceResponse.Message = ex.Message;
+            }
+
+            return serviceResponse;
+        }
+
+        public async Task<ServiceResponse<List<GetCharacterDTO>>> Create(CreateCharacterDTO newCharacter)
+        {
+            var serviceResponse = new ServiceResponse<List<GetCharacterDTO>>();
+            var character = _mapper.Map<Character>(newCharacter);
+            character.Id = characters.Max(c => c.Id) + 1;
+            characters.Add(character);
+            serviceResponse.Data = characters.Select(c => _mapper.Map<GetCharacterDTO>(c)).ToList();
+
+            return serviceResponse;
+        }
+
+        public async Task<ServiceResponse<GetCharacterDTO>> Update(UpdateCharacterDTO updateCharacter)
+        {
+            var serviceResponse = new ServiceResponse<GetCharacterDTO>();
+            try
+            {
+                var character = characters.FirstOrDefault(c => c.Id == updateCharacter.Id);
+                if (character == null) throw new Exception($"Character with Id '{updateCharacter.Id}' not found.");
+
+                character.Name = updateCharacter.Name;
+                character.HitPoints = updateCharacter.HitPoints;
+                character.Strength = updateCharacter.Strength;
+                character.Defense = updateCharacter.Defense;
+                character.Intelligence = updateCharacter.Intelligence;
+                character.Class = updateCharacter.Class;
+                
+                serviceResponse.Data = _mapper.Map<GetCharacterDTO>(character);
+            }
+            catch (Exception ex)
+            {
+                serviceResponse.Success = false;
+                serviceResponse.Message = ex.Message;
+            }
+            
+            return serviceResponse;
         }
     }
 }
